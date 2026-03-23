@@ -31,16 +31,21 @@ def predict():
 
         loc_encoded = encode_location(location)
 
-        # 🔥 Model predicts WASTE (not %)
+        # 🔥 Model prediction
         predicted_waste = model.predict([[capacity, avgWaste, hours, loc_encoded]])[0]
 
-        # 🔥 Convert to percentage
-        if capacity > 0:
-            predicted_fill = (predicted_waste / capacity) * 100
+# ✅ FIX: If just cleaned → force LOW
+        if hours == 0:
+          
+          predicted_fill = 0
+
         else:
+          if capacity > 0:
+            predicted_fill = (predicted_waste / capacity) * 100
+          else:
             predicted_fill = 0
 
-        # 🔥 Clamp value between 0–100
+# ✅ Clamp value
         predicted_fill = max(0, min(predicted_fill, 100))
 
         # 🔹 Priority logic
@@ -67,5 +72,5 @@ def predict():
 # 🔹 Run server
 if __name__ == "__main__":
     import os
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5001))
     app.run(host="0.0.0.0", port=port)
